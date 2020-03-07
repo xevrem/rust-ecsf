@@ -15,7 +15,10 @@ impl<T> Default for Bag<T> {
     }
 }
 
-impl<T: Copy + PartialEq + Default> Bag<T> {
+impl<T> Bag<T>
+where
+    T: Copy + PartialEq + Default,
+{
     pub fn new(length: usize) -> Self {
         Self {
             count: 0,
@@ -115,7 +118,7 @@ impl<T: Copy + PartialEq + Default> Bag<T> {
         value
     }
 
-    fn grow(&mut self, size: usize) {
+    pub fn grow(&mut self, size: usize) {
         let mut new = Vec::with_capacity(size);
         for i in 0..self.data.len() {
             new[i] = self.data[i];
