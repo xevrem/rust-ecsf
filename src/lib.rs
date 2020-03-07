@@ -1,8 +1,16 @@
 mod bag;
 mod entity;
+mod component;
+mod instance;
+mod component_manager;
 
-pub use bag::Bag;
-pub use entity::Entity;
+pub use {
+    bag::Bag,
+    component::Component,
+    component_manager::ComponentManager,
+    entity::Entity,
+    instance::EcsInstance,
+};
 
 #[cfg(test)]
 mod tests_library {
