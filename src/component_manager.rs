@@ -1,22 +1,26 @@
-
-use super::{instance::EcsInstance, bag::Bag, component::Component};
-
+use super::{
+    bag::Bag,
+    component::{Component, TestComponent},
+    instance::EcsInstance,
+};
 
 #[derive(Debug)]
-pub struct ComponentManager<'a> {
+pub struct ComponentManager<'a, T: Component> {
     instance: &'a EcsInstance,
-    components: Bag<Component>,
+    components: Bag<Bag<T>>,
     next_type_id: i32,
 }
 
-impl<'a> ComponentManager<'a> {
+impl<'a, T: Component> ComponentManager<'a, T> {
     pub fn new(instance: &'a EcsInstance) -> Self {
-        Self{
+        Self {
             instance,
-            components: Bag::<Component>::new(16),
-            next_type_id: 0
+            components: Bag::<Bag<T>>::default(),
+            next_type_id: 0,
         }
     }
+
+    pub fn register_component_type() {}
 }
 
 #[cfg(test)]
@@ -26,8 +30,6 @@ mod tests {
     #[test]
     fn test_creation() {
         let instance = EcsInstance::default();
-        let cm = ComponentManager::new(&instance);
-
-
+        let cm = ComponentManager::<TestComponent>::new(&instance);
     }
 }
