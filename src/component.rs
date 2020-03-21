@@ -1,10 +1,19 @@
 pub trait Component {
-    fn get_id(&self) -> i32;
-    fn set_id(&self) -> i32;
-    fn get_type(&self) -> i32;
-    fn set_type(&self) -> i32;
-    fn get_owner(&self) -> i32;
-    fn set_owner(&self) -> i32;
+    fn get_id(&self) -> usize;
+    fn set_id(&self, value: usize) -> ();
+    fn get_type(&self) -> usize;
+    fn set_type(&self, value: usize) -> ();
+    fn get_owner(&self) -> usize;
+    fn set_owner(&self, value: usize) -> ();
+    // fn default(&self) -> Self
+    // where
+    //     Self: Sized;
+    // fn copy(&self) -> Self
+    // where
+    //     Self: Sized;
+    // fn eq(&self, other: &Self) -> bool
+    // where
+    //     Self: Sized;
 }
 
 #[derive(Debug, PartialEq, Default, Copy, Clone)]
@@ -15,22 +24,22 @@ pub struct TestComponent {
 }
 
 impl Component for TestComponent {
-    fn get_id(&self) -> i32 {
-        self.id
-    }
-    fn get_type(&self) -> i32 {
+    fn get_id(&self) -> usize {
         unimplemented!()
     }
-    fn set_owner(&self) -> i32 {
+    fn set_id(&self, value: usize) {
         unimplemented!()
     }
-    fn get_owner(&self) -> i32 {
+    fn get_owner(&self) -> usize {
         unimplemented!()
     }
-    fn set_type(&self) -> i32 {
+    fn set_owner(&self, value: usize) {
         unimplemented!()
     }
-    fn set_id(&self) -> i32 {
+    fn get_type(&self) -> usize {
+        unimplemented!()
+    }
+    fn set_type(&self, value: usize) {
         unimplemented!()
     }
 }

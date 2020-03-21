@@ -1,28 +1,25 @@
 #[derive(Debug)]
-pub struct Bag<T> {
-    pub data: Vec<T>,
+pub struct Bag<'a, T> {
+    pub data: Vec<Option<&'a T>>,
     pub count: usize,
     pub length: usize,
 }
 
-impl<T> Default for Bag<T> {
-    fn default() -> Self {
-        Self {
-            count: 0,
-            data: Vec::<T>::with_capacity(16_usize),
-            length: 16_usize,
-        }
-    }
-}
+// impl<T> Default for Bag<T> {
+//     fn default() -> Self {
+//         Self {
+//             count: 0,
+//             data: Vec::<T>::with_capacity(16_usize),
+//             length: 16_usize,
+//         }
+//     }
+//}
 
-impl<T> Bag<T>
-where
-    T: Copy + PartialEq + Default,
-{
-    pub fn new(length: usize) -> Self {
-        Self {
+impl<'a, T> Bag<'a, T> {
+    pub fn new(length: usize) -> Bag<'a, T> {
+        Bag {
             count: 0,
-            data: Vec::<T>::with_capacity(length),
+            data: Vec::<Option<&'a T>>::with_capacity(length),
             length,
         }
     }
@@ -35,11 +32,11 @@ where
         self.count == 0
     }
 
-    pub fn get(&self, index: usize) -> T {
-        self.data[index]
+    pub fn get(&self, index: usize) -> &Option<T> {
+        &self.data[index]
     }
 
-    pub fn set(&mut self, index: usize, value: T) {
+    pub fn set(&mut self, index: usize, value: &T) {
         if index >= self.data.len() {
             self.grow(index * 2);
             self.count = index + 1;
@@ -47,10 +44,10 @@ where
             self.count = index + 1;
         }
 
-        self.data[index] = value;
+        self.data[index] = Some(value);
     }
 
-    pub fn add(&mut self, element: T) {
+    pub fn add(&mut self, element: Option<&T>) {
         if self.count + 1 >= self.data.len() {
             self.grow(self.data.len() * 2 + 1);
         }
@@ -58,21 +55,22 @@ where
         self.count += 1;
     }
 
-    pub fn add_range(&mut self, bag: Bag<T>) {
+    pub fn add_range(&mut self, bag: &Bag<T>) {
         for i in 0..bag.count {
-            self.add(bag.get(i));
+            let val = bag.get(i);
+            self.add(val)
         }
     }
 
     pub fn clear(&mut self) {
-        self.data = Vec::<T>::with_capacity(self.data.len());
+        self.data = Vec::<Option<T>>::with_capacity(self.data.len());
         self.count = 0;
     }
 
     pub fn contains(&self, element: T) -> bool {
         for i in 0..self.data.len() {
-            if self.data[i] == element {
-                return true;
+            match self.data[i] {
+                Some(element) => return true,
             }
         }
         return false;
@@ -80,8 +78,8 @@ where
 
     pub fn index_of(&self, element: T) -> Option<usize> {
         for i in 0..self.data.len() {
-            if self.data[i] == element {
-                return Some(i);
+            match self.data[i] {
+                Some(element) => return Some(i),
             }
         }
         None
@@ -91,9 +89,9 @@ where
         match self.index_of(element) {
             Some(index) => {
                 let value = self.data[index];
-                self.data[index] = T::default();
+                self.data[index] = None;
                 self.count -= 1;
-                Some(value)
+                value
             }
             None => None,
         }
@@ -102,18 +100,18 @@ where
     pub fn remove_at(&mut self, index: usize) -> Option<T> {
         if index < self.data.len() {
             let value = self.data[index];
-            self.data[index] = T::default();
+            self.data[index] = None;
             self.count -= 1;
-            Some(value)
+            value
         } else {
             None
         }
     }
 
-    pub fn remove_last(&mut self) -> T {
+    pub fn remove_last(&mut self) -> Option<T> {
         let index = self.data.len() - 1;
         let value = self.data[index];
-        self.data[index] = T::default();
+        self.data[index] = None;
         self.count -= 1;
         value
     }

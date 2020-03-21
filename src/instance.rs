@@ -10,8 +10,8 @@ pub struct EcsInstance {
     elapsed : f32,
 }
 
-impl Default for EcsInstance {
-    fn default() -> Self {
+impl EcsInstance {
+    pub fn new() -> EcsInstance {
         EcsInstance {
             updating: Vec::<Entity>::new(),
             deleting: Vec::<Entity>::new(),
