@@ -1,13 +1,13 @@
 use super::{
     bag::Bag,
-    component::{Component, TestComponent},
+    component::Component,
     instance::EcsInstance,
 };
 
 // #[derive(Debug)]
 pub struct ComponentManager<'a> {
     instance: &'a EcsInstance,
-    components: Bag<'a, &'a Bag<'a, Box<dyn Component>>>,
+    components: Bag<Bag<Box<dyn Component>>>,
     next_type_id: usize,
 }
 
@@ -15,7 +15,7 @@ impl<'a> ComponentManager<'a> {
     pub fn new(instance: &'a EcsInstance) -> ComponentManager<'a> {
         ComponentManager {
             instance,
-            components: Bag::<'a, &'a Bag<'a, Box<dyn Component>>>::new(16_usize),
+            components: Bag::<Bag<Box<dyn Component>>>::new(16_usize),
             next_type_id: 0,
         }
     }
@@ -30,9 +30,12 @@ impl<'a> ComponentManager<'a> {
         }
         if component.get_type() < self.components.capacity() {
             match component.get_type() {
-                0 => self
-                    .components
-                    .set(component.get_type(), Bag::<'a, Box<dyn Component>>::new(16_usize)),
+                0 => {
+                    let new_bag = Bag::<Box<dyn Component>>::new(16_usize);
+                    self
+                    .components.set(component.get_type(), new_bag);
+                    
+                }
                 _ => {}
             }
         // if self.components.get(component.get_type()) == None {
