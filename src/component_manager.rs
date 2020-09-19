@@ -1,8 +1,4 @@
-use super::{
-    bag::Bag,
-    component::Component,
-    instance::EcsInstance,
-};
+use super::{bag::Bag, component::Component, entity::Entity, instance::EcsInstance};
 
 // #[derive(Debug)]
 pub struct ComponentManager<'a> {
@@ -32,9 +28,7 @@ impl<'a> ComponentManager<'a> {
             match component.get_type() {
                 0 => {
                     let new_bag = Bag::<Box<dyn Component>>::new(16_usize);
-                    self
-                    .components.set(component.get_type(), new_bag);
-                    
+                    self.components.set(component.get_type(), new_bag);
                 }
                 _ => {}
             }
@@ -43,6 +37,16 @@ impl<'a> ComponentManager<'a> {
         // }
         } else {
         }
+    }
+
+    pub fn add_component(&mut self, entity: Entity, component: Box<dyn Component>) {
+        match self.components.get(component.get_id()) {
+            Some(val) => {
+                let foo: &mut Bag<Box<dyn Component>> = val;
+                foo.set(entity.id, component);
+            }
+            None => {}
+        };
     }
 }
 

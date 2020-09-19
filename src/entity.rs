@@ -1,8 +1,7 @@
 #[derive(Debug, Default)]
 pub struct Entity {
-    pub id: i32
+    pub id: usize,
 }
-
 
 #[cfg(test)]
 mod tests_entity {

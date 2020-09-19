@@ -32,8 +32,8 @@ impl<T> Bag<T> {
         self.count == 0
     }
 
-    pub fn get(&self, index: usize) -> &Option<T> {
-        &self.data[index]
+    pub fn get(&mut self, index: usize) -> &mut Option<T> {
+        &mut self.data[index]
     }
 
     pub fn set(&mut self, index: usize, value: T) {
@@ -47,15 +47,18 @@ impl<T> Bag<T> {
         self.data[index] = Some(value);
     }
 
-    pub fn add(&mut self, element: Option<T>) {
+    pub fn add(&mut self, element: T) {
         if self.count + 1 >= self.data.len() {
             self.grow(self.data.len() * 2 + 1);
         }
-        self.data[self.count] = element;
+        self.data[self.count] = Some(element);
         self.count += 1;
     }
 
-    pub fn add_range(&mut self, other: &Bag<T>) where T: Clone {
+    pub fn add_range(&mut self, other: &Bag<T>)
+    where
+        T: Clone,
+    {
         // for i in 0..other.count {
         //     match other.data.remove(i) {
         //         Some(val) => self.add(Some(val)),
@@ -70,22 +73,30 @@ impl<T> Bag<T> {
         self.count = 0;
     }
 
-    pub fn contains(&self, element: T) -> bool where T: PartialEq {
+    pub fn contains(&self, element: T) -> bool
+    where
+        T: PartialEq,
+    {
         self.data.contains(&Some(element))
-
     }
 
-    pub fn index_of(&self, element: &T) -> Option<usize> where T: PartialEq {
+    pub fn index_of(&self, element: &T) -> Option<usize>
+    where
+        T: PartialEq,
+    {
         for i in 0..self.data.len() {
             match &self.data[i] {
                 Some(val) if val == element => return Some(i),
-                _ => {},
+                _ => {}
             }
         }
         None
     }
 
-    pub fn remove(&mut self, element: T) -> Option<T> where T: PartialEq {
+    pub fn remove(&mut self, element: T) -> Option<T>
+    where
+        T: PartialEq,
+    {
         match self.index_of(&element) {
             Some(index) => {
                 self.data.push(None);
@@ -109,9 +120,9 @@ impl<T> Bag<T> {
     }
 
     pub fn remove_last(&mut self) -> Option<T> {
-        let value = match self.data.pop(){
+        let value = match self.data.pop() {
             Some(val) => val,
-            None => None
+            None => None,
         };
         self.count -= 1;
         value
