@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub struct Bag<T> {
+pub struct Bag<T: Clone> {
     pub data: Vec<Option<T>>,
     pub count: usize,
     pub length: usize,
@@ -15,11 +15,13 @@ pub struct Bag<T> {
 //     }
 //}
 
-impl<T> Bag<T> {
+impl<T: Clone> Bag<T> {
     pub fn new(length: usize) -> Bag<T> {
+        let mut data = Vec::<Option<T>>::with_capacity(length);
+        data.fill(None);
         Bag {
             count: 0,
-            data: Vec::<Option<T>>::with_capacity(length),
+            data,
             length,
         }
     }

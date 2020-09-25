@@ -1,14 +1,19 @@
-use super::{bag::Bag, component::Component, entity::Entity, instance::EcsInstance};
+use super::{
+    bag::Bag,
+    component::{Component, TestComponent},
+    entity::Entity,
+    instance::EcsInstance,
+};
 
 // #[derive(Debug)]
-pub struct ComponentManager<'a> {
+pub struct ComponentManager<'a, T: Component + Clone> {
     instance: &'a EcsInstance,
-    components: Bag<Bag<Box<dyn Component>>>,
+    components: Bag<Bag<Box<dyn Component, Clone>>>,
     next_type_id: usize,
 }
 
-impl<'a> ComponentManager<'a> {
-    pub fn new(instance: &'a EcsInstance) -> ComponentManager<'a> {
+impl<'a, T: Component + Clone> ComponentManager<'a, T> {
+    pub fn new(instance: &'a EcsInstance) -> ComponentManager<'a, T> {
         ComponentManager {
             instance,
             components: Bag::<Bag<Box<dyn Component>>>::new(16_usize),
@@ -16,26 +21,25 @@ impl<'a> ComponentManager<'a> {
         }
     }
 
-    pub fn register_component_type<T>(&mut self, component: T)
+    pub fn register_component_type<T>(&mut self, mut component: T)
     where
         T: Component,
     {
-        if component.get_type() == 0 {
-            component.set_type(self.next_type_id);
+        if component.get_id() == 0 {
+            component.set_id(self.next_type_id);
             self.next_type_id += 1;
         }
-        if component.get_type() < self.components.capacity() {
-            match component.get_type() {
-                0 => {
+        if component.get_id() < self.components.capacity() {
+            match self.components.get(component.get_id()) {
+                None => {
                     let new_bag = Bag::<Box<dyn Component>>::new(16_usize);
-                    self.components.set(component.get_type(), new_bag);
+                    self.components.set(component.get_id(), new_bag);
                 }
                 _ => {}
             }
-        // if self.components.get(component.get_type()) == None {
-
-        // }
         } else {
+            let new_bag = Bag::<Box<dyn Component>>::new(16_usize);
+            self.components.set(component.get_id(), new_bag);
         }
     }
 
@@ -52,11 +56,20 @@ impl<'a> ComponentManager<'a> {
 
 #[cfg(test)]
 mod tests {
+    use super::TestComponent;
     use super::*;
 
     #[test]
     fn test_creation() {
         let instance = EcsInstance::new();
-        let cm = ComponentManager::new(&instance);
+        ComponentManager::new(&instance);
+    }
+
+    #[test]
+    fn test_register_component() {
+        let instance = EcsInstance::new();
+        let mut cm = ComponentManager::new(&instance);
+        let mut tc = TestComponent::new();
+        cm.register_component_type(tc);
     }
 }

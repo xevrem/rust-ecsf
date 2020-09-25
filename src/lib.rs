@@ -1,12 +1,12 @@
 mod bag;
-mod entity;
 mod component;
-mod instance;
 mod component_manager;
+mod entity;
+mod instance;
 
 pub use {
     bag::Bag,
-    component::Component,
+    component::{Component, TestComponent},
     component_manager::ComponentManager,
     entity::Entity,
     instance::EcsInstance,
