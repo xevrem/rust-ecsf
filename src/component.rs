@@ -21,8 +21,8 @@ pub struct TestComponent {
 }
 
 impl TestComponent {
-    pub fn new() -> Self {
-        Self { id: 0, owner: 0 }
+    pub fn new() -> TestComponent {
+        TestComponent { id: 0, owner: 0 }
     }
 }
 

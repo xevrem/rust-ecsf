@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub struct Bag<T: Clone> {
+pub struct Bag<T> {
     pub data: Vec<Option<T>>,
     pub count: usize,
     pub length: usize,
@@ -15,10 +15,12 @@ pub struct Bag<T: Clone> {
 //     }
 //}
 
-impl<T: Clone> Bag<T> {
+impl<T> Bag<T> {
     pub fn new(length: usize) -> Bag<T> {
-        let mut data = Vec::<Option<T>>::with_capacity(length);
-        data.fill(None);
+        let mut data = Vec::<Option<T>>::new();
+        for _i in 0..length {
+            data.push(None);
+        }
         Bag {
             count: 0,
             data,
@@ -34,8 +36,14 @@ impl<T: Clone> Bag<T> {
         self.count == 0
     }
 
-    pub fn get(&mut self, index: usize) -> &mut Option<T> {
-        &mut self.data[index]
+    pub fn get(&mut self, index: usize) -> Option<&mut T> {
+        match self.data.get_mut(index) {
+            Some(val) => match val {
+                Some(foo) => Some(foo),
+                None => None,
+            },
+            None => None,
+        }
     }
 
     pub fn set(&mut self, index: usize, value: T) {
@@ -148,10 +156,7 @@ mod tests_bag {
         let bag = Bag::<i32>::new(5);
 
         assert!(bag.count == 0, "count not set to 0");
-        assert!(
-            bag.data == Vec::<Option<i32>>::with_capacity(5),
-            "data not set to vec of given length"
-        );
+        assert!(bag.data.len() == 5, "data not set to vec of given length");
         assert!(bag.length == 5_usize, "length set to given length");
     }
 }

@@ -6,14 +6,14 @@ use super::{
 };
 
 // #[derive(Debug)]
-pub struct ComponentManager<'a, T: Component + Clone> {
+pub struct ComponentManager<'a> {
     instance: &'a EcsInstance,
-    components: Bag<Bag<Box<dyn Component, Clone>>>,
+    components: Bag<Bag<Box<dyn Component>>>,
     next_type_id: usize,
 }
 
-impl<'a, T: Component + Clone> ComponentManager<'a, T> {
-    pub fn new(instance: &'a EcsInstance) -> ComponentManager<'a, T> {
+impl<'a> ComponentManager<'a> {
+    pub fn new(instance: &'a EcsInstance) -> ComponentManager<'a> {
         ComponentManager {
             instance,
             components: Bag::<Bag<Box<dyn Component>>>::new(16_usize),
@@ -21,7 +21,7 @@ impl<'a, T: Component + Clone> ComponentManager<'a, T> {
         }
     }
 
-    pub fn register_component_type<T>(&mut self, mut component: T)
+    pub fn register_component_type<T>(&mut self, component: &mut T)
     where
         T: Component,
     {
@@ -30,26 +30,29 @@ impl<'a, T: Component + Clone> ComponentManager<'a, T> {
             self.next_type_id += 1;
         }
         if component.get_id() < self.components.capacity() {
-            match self.components.get(component.get_id()) {
-                None => {
-                    let new_bag = Bag::<Box<dyn Component>>::new(16_usize);
-                    self.components.set(component.get_id(), new_bag);
-                }
-                _ => {}
+            if let None = self.components.get(component.get_id()) {
+                self.components
+                    .set(component.get_id(), Bag::<Box<dyn Component>>::new(16_usize));
             }
+        // match self.components.get(component.get_id()) {
+        //     None => {
+        //         self.components
+        //             .set(component.get_id(), Bag::<Box<dyn Component>>::new(16_usize));
+        //     }
+        //     _ => {}
+        // }
         } else {
-            let new_bag = Bag::<Box<dyn Component>>::new(16_usize);
-            self.components.set(component.get_id(), new_bag);
+            self.components
+                .set(component.get_id(), Bag::<Box<dyn Component>>::new(16_usize));
         }
     }
 
-    pub fn add_component(&mut self, entity: Entity, component: Box<dyn Component>) {
-        match self.components.get(component.get_id()) {
-            Some(val) => {
-                let foo: &mut Bag<Box<dyn Component>> = val;
-                foo.set(entity.id, component);
-            }
-            None => {}
+    pub fn add_component<T>(&mut self, entity: Entity, component: Box<dyn Component>)
+    where
+        T: Component,
+    {
+        if let Some(ref mut val) = self.components.get(component.get_id()) {
+            val.set(entity.id, component);
         };
     }
 }
@@ -70,6 +73,25 @@ mod tests {
         let instance = EcsInstance::new();
         let mut cm = ComponentManager::new(&instance);
         let mut tc = TestComponent::new();
-        cm.register_component_type(tc);
+        assert!(tc.id == 0, "default id not 0");
+        assert!(cm.components.count == 0, "default count not 0");
+        println!("capacity::{}", cm.components.capacity());
+        println!("count::{}", cm.components.count);
+        cm.register_component_type(&mut tc);
+        println!("count::{}", cm.components.count);
+        println!("length::{}", cm.components.data.len());
+        assert!(
+            cm.components.count == 1_usize,
+            "did not increase components"
+        );
+        let mut bar = TestComponent::new();
+        cm.register_component_type(&mut bar);
+        assert!(bar.id != 0, "default id is still 0");
+    }
+
+    #[test]
+    fn test_add_component() {
+        let instance = EcsInstance::new();
+        let mut cm = ComponentManager::new(&instance);
     }
 }
